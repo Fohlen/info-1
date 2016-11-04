@@ -4,55 +4,64 @@
 ; Blatt02-A3-fuel
 
 ; Berechnet Literverbauch auf 100km
-; <float> liters-per-hundred-kilometer(<float>, <float>)
-(define liter-per-hundred-kilometer
+(: liters-per-hundred-kilometer (real real -> real))
+(check-expect (liters-per-hundred-kilometer 5 100) 5)
+(define liters-per-hundred-kilometer
   (lambda (benzin kilometer)
-    (* (/ kilometer benzin) 100)))
+    (* (/ benzin kilometer) 100)))
 
 ; Berechnet Meilen pro Gallone
 ; <float> miles-per-gallon(<float>, <float>)
+(: miles-per-gallon (real real -> real))
+(check-expect (miles-per-gallon 100 10) 10)
 (define miles-per-gallon
   (lambda (miles gallon)
     (/ miles gallon)))
 
-; <float> KILOMETERS_PER_MILE
-(define KILOMETERS-PER-MILE 1.61)
+; Konstante für die Umrechung von Kilometer in Meile. 
+(define kilometers-per-mile 1.61)
 
 ; Rechnet Kilometer in Meilen um
-; <float> kilometer-to-miles(<float>)
-(define kilometer-to-miles
+(: kilometers->miles (real -> real))
+(check-within (kilometers->miles 1 ) 1.61 0.001)
+(define kilometers->miles
   (lambda (kilometer)
-    (* kilometer KILOMETERS-PER-MILE)))
+    (* kilometer kilometers-per-mile)))
 
-; Rechnet Meilen in Kilometer um
-; <float> miles-to-kilometer(<float>)
-(define miles-to-kilometer
+; Rechnet Meilen in Kilometer um)
+(: miles->kilometers (real -> real))
+(check-within (miles->kilometers 1.61 ) 1 0.001)
+(define miles->kilometers
   (lambda (miles)
-    (/ miles KILOMETERS-PER-MILE)))
+    (/ miles kilometers-per-mile)))
 
-; <float> LITERS-PER-GALLON
-(define LITERS-PER-GALLON 3,79)
+;  Konstante für die Umrechung von Liter in Gallone.
+(define liters-per-gallon 3.79)
 
-; Rechnet Liter in Gallonen um
-; <float> liters-to-gallon(<float>)
-(define liters-to-gallon
+; Rechnet Liter in Gallonen um.
+(: liters->gallons (real -> real))
+(check-within (liters->gallons 3.79) 1 0.001) 
+(define liters->gallons
   (lambda (liters)
-    (/ liters LITERS-PER-GALLON)))
+    (/ liters liters-per-gallon)))
 
-; Rechnet Gallonen in Liter um
-; <float> gallon-to-liters
-(define gallon-to-liters
-  (lambda (gallons)
-    (* gallons LITERS-PER-GALLON)))
+; Rechnet Gallonen in Liter um.
+(: gallons->liters (real -> real))
+(check-within (gallons->liters 1) 3.79 0.001)
+(define gallons->liters
+  (lambda(gallons)
+    (* gallons liters-per-gallon)))
 
-; Liter pro 100/kilometer -> Meilen / Gallone
-; <float> l-100-to-gallone(<float>)
-(define l-100-to-gallone
-  (lambda (consumption)
-    (* LITERS-TO-GALLON (liters-to-gallon (- 1 (/ consumption 100))))))
+; Rechnet den Verbrauch, in Liter pro 100 Kilometer, in die Reichweite mit der Einheit Meilen pro Gallone um.
+(: l/100km->mi/gal (real -> real))
+(check-within (l/100km->mi/gal 5) 122.038 0.001)
+(define l/100km->mi/gal
+  (lambda (consumption-in-liters)
+    (kilometers->miles(/ 1 (liters->gallons(/ consumption-in-liters 100 ))))))
 
-; Meilen / Gallone -> Liter pro 100kilometer
-; <float> gallone-to-l-100(<float>)
-(define gallone-to-l-100
-  (lambda (consumption)
-    (/ LITERS-TO-GALLON (gallon-to-liters (- 1 (* consumption KILOMETERS-PER-MILE))))))
+; Rechnet die Reichweite, in Meilen pro Gallone, in den Verbrauch mit der Einheit Liter pro 100 Kilometer  um.
+(: mi/gal->l/100km (real -> real))
+(check-within (mi/gal->l/100km 122.038) 5 0.001)
+(define mi/gal->l/100km
+  (lambda (range-in-miles)
+    (* (gallons->liters(/ 1 (miles->kilometers range-in-miles))) 100)))
