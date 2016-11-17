@@ -16,11 +16,10 @@
       ((< f 11) #f))))
 
 (: g (boolean boolean -> boolean))
-(check-expect (g #f #t) #f)
-(check-expect (g #f #f) #t)
+(check-expect (g #t #t) #t)
 (define g
   (lambda (a b)
-    (not b)))
+    (xor a b)))
 
 (: greater-equal-zero? (number -> boolean))
 (check-expect (greater-equal-zero? 10) #t)
