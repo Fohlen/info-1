@@ -56,8 +56,9 @@
 (: euclidean-distance (position position -> real))
 ; Definiere einen Testpunkt
 (define nullposition (make-position 0 0))
+(define position1 (make-position 2 5))
 (check-expect (euclidean-distance nullposition nullposition) 0)
-
+(check-within (euclidean-distance position1 nullposition) (sqrt 29) 0.001)
 (define euclidean-distance
   (lambda (x y)
     (sqrt (+ (expt (- (position-x x) (position-x y)) 2) (expt (- (position-y x) (position-y y)) 2)))))
@@ -66,11 +67,16 @@
 ; Berechnet den Schaden den der Character durch eine Attacke erhält
 ; - distance (real)
 ; - attack (attack)
-(: character->damage (real attack -> number))
-
+(define attack1 (make-attack  nullposition (make-bomb 50 50)))
+(define attack2 (make-attack  (make-position 1 1) (make-bomb 4 50)))
+(define attack3 (make-attack  (make-position 2 2) (make-bomb (sqrt 8) 50)))
+(: character->damage (position attack -> number))
+(check-expect (character->damage nullposition attack1) 50)
+(check-within (character->damage nullposition attack2) (round (* (- 1(/ (sqrt 2) 4)) 50)) 0.001)
+(check-within (character->damage nullposition attack3) 0 0.001)
 (define character->damage
   (lambda (d a)
-    (round (* (- 1 (/ d (bomb-radius (attack-bomb a))))) (bomb-damage (attack-bomb a)))))
+    (round (* (- 1 (/ (euclidean-distance d (attack-position a)) (bomb-radius (attack-bomb a)))) (bomb-damage (attack-bomb a))))))
 
 ; Berechnet den Schaden einer Attacke für einen Character
 (: drop-bomb (character attack -> character))
@@ -78,6 +84,8 @@
 ; Couldn't this be done with an if? Syntax is strange....
 (define drop-bomb
   (lambda (c a)
-    (cond
-      [(< (euclidean-distance (attack-position a) (character-position a)) (bomb-radius (attack-bomb a)))
-       (make-character (character-position c) (- (character-health c) (character->damage (euclidean-distance (attack-position a) (character-position c)) a)) (character-position c))])))
+    (if (<(euclidean-distance (attack-position a) (character-position c)) (bomb-radius (attack-bomb a)))
+       (make-character (character-name c) (- (character-health c) (character->damage (character-position c) a)) (character-position c)) c)))
+
+(define character1 (make-character "Gorsten Trust" 100 nullposition))
+(check-within (drop-bomb character1 attack1) (make-character (character-name character1) 50 (character-position character1)) 0.001)
