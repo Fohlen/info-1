@@ -81,7 +81,7 @@
 ; Berechnet den Schaden einer Attacke für einen Character
 (: drop-bomb (character attack -> character))
 
-; Couldn't this be done with an if? Syntax is strange....
+; Berechnet für einen Charakter den Schaden den er durch einen Bombenangriff erhält.
 (define drop-bomb
   (lambda (c a)
     (if (<(euclidean-distance (attack-position a) (character-position c)) (bomb-radius (attack-bomb a)))
