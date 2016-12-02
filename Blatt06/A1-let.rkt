@@ -3,7 +3,7 @@
 #reader(lib "DMdA-vanilla-reader.ss" "deinprogramm")((modname A1-let) (read-case-sensitive #f) (teachpacks ()) (deinprogramm-settings #(#f write repeating-decimal #f #t none explicit #f ())))
 ; Ohne let
 (define f
-  (lambda (x r)
+  (lambda (x)
     ((lambda (r)
       (i r (h r)))(r (g x)))))
 
